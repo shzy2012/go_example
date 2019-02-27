@@ -1,15 +1,15 @@
 package main
 
 import (
+	"encoding/binary"
 	"fmt"
-	"time"
 )
 
 func main() {
-	now := time.Now()
+	b := make([]byte, 8)
+	binary.LittleEndian.PutUint64(b, uint64(123))
+	fmt.Println(b)
 
-	fmt.Println("now=>", now)
-	//时间戳
-	fmt.Println("unix=>", now.Unix())
-	fmt.Println("unixNano=>", now.UnixNano())
+	i64 := binary.LittleEndian.Uint64(b)
+	fmt.Println(i64)
 }
