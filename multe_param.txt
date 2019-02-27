@@ -1,0 +1,13 @@
+package main
+
+import "log"
+
+func multeParam(params ...int) {
+	for index, v := range params {
+		log.Printf("value=>%v,%v \n", v, index)
+	}
+}
+
+func main() {
+	multeParam(1, 2, 3, 4)
+}

@@ -1,0 +1,27 @@
+package main
+
+import "log"
+
+type Callback func() (interface{}, error)
+
+type Machine struct {
+	Name string
+	Exec Callback
+}
+
+func (m *Machine) Run() {
+	log.Println("machine is running")
+	data, _ := m.Exec()
+	name,_ :=data.(string)
+	log.Println("get data=>"+name)
+}
+
+func main() {
+	m := &Machine{Name: "A", Exec: func() (interface{}, error) {
+		log.Println("this is call back")
+		return "data", nil
+	}}
+
+	m.Run()
+
+}

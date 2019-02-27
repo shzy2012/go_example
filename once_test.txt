@@ -1,0 +1,23 @@
+package main
+import(
+	"sync"
+	"sync/atomic"
+)
+
+type OnceTest struct{
+	m sync.Mutex
+	done uint32
+}
+
+func (d *OnceTest) Do(f func())  {
+	if atomic.LoadUint32(&d.done)==1{
+		return
+	}
+
+	d.m.Lock()
+	d.m.Unlock()
+	if d.done==0{
+		defer atomic.StoreUint32(&d.done,1)
+		f()
+	}
+}

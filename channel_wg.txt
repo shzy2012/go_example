@@ -1,0 +1,50 @@
+package main
+
+import (
+	"fmt"
+	"log"
+	"sync"
+)
+
+var wg sync.WaitGroup
+
+func worker(inputCh <-chan string) {
+	for {
+		select {
+		case v, more := <-inputCh:
+			if !more {
+				log.Println("jobs finished")
+				return
+			}
+
+			log.Printf("[recevice]=> %s", v)
+			wg.Done()
+		}
+
+		// v, more := <-inputCh
+		// if !more {
+		// 	log.Println("jobs finished")
+		// 	return
+		// }
+
+		// log.Printf("[recevice]=> %s", v)
+		// wg.Done()
+	}
+}
+func main() {
+	inputCh := make(chan string, 10)
+
+	for i := 0; i < 2; i++ {
+		go worker(inputCh)
+	}
+
+	for i := 0; i < 10; i++ {
+		inputCh <- fmt.Sprintf("job-%v", i)
+		wg.Add(1)
+	}
+
+	log.Println("jobs running finished")
+
+	wg.Wait()
+	log.Println("jobs all finished")
+}

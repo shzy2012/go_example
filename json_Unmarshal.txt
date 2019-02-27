@@ -1,0 +1,32 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+)
+
+type Tu struct {
+	OpenID      int `json:"open_id"`
+	EventID     int `json:"event_id"`
+	InvolveTime int `json:"involve_time"`
+}
+
+func main() {
+
+	jsonT := []byte(`
+	{
+		"open_id" : 4,
+		"event_id" : 2,
+		"involve_time" : 3
+	  }
+	`)
+
+	var t Tu
+	ok := json.Unmarshal(jsonT, &t)
+	if ok != nil {
+		fmt.Println(ok)
+	}
+
+	fmt.Println(t)
+
+}

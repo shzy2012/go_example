@@ -1,0 +1,18 @@
+package main
+
+import (
+	"log"
+	"time"
+)
+
+func main() {
+	for {
+		for {
+			log.Println("for is ok")
+			return
+		}
+	}
+
+	time.Sleep(time.Second * 10)
+
+}

@@ -1,0 +1,46 @@
+package main
+
+import (
+	"log"
+	"net/http"
+	"time"
+
+	"github.com/gin-gonic/gin"
+)
+
+func main() {
+	router := gin.Default()
+	router.Use(func() gin.HandlerFunc {
+		return func(c *gin.Context) {
+			t := time.Now()
+
+			// Set example variable
+			c.Set("example", "12345")
+
+			// before request
+
+			c.Next()
+
+			// after request
+			latency := time.Since(t)
+			log.Print(latency)
+
+			// access the status we are sending
+			status := c.Writer.Status()
+			log.Println(status)
+		}
+	}())
+	router.GET("/ping", pingHandler)
+
+	router.Run()
+}
+
+func pingHandler(c *gin.Context) {
+	data := map[string]interface{}{
+		"lang": "GO语言",
+		"tag":  "<br>",
+	}
+
+	// will output : {"lang":"GO\u8bed\u8a00","tag":"\u003cbr\u003e"}
+	c.AsciiJSON(http.StatusOK, data)
+}

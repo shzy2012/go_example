@@ -1,0 +1,36 @@
+package main
+
+import (
+		"sync"
+		"net"
+		"log"
+		"os"
+	)
+
+var once sync.Once
+
+func main()  {
+	listener, err := net.Listen("tcp", "localhost:18888")
+    if err != nil {
+        log.Fatal(err)
+    }
+	defer listener.Close()
+	for{
+		once.Do(func(){
+			log.Println("process pid:", os.Getpid())
+		})
+	
+		conn,err:=listener.Accept()
+		if err!=nil{
+			log.Println("监听端口发生错误", err)
+		}
+		log.Println(conn.RemoteAddr(), "连接成功")
+		go handleConn(conn)
+	}
+}
+
+func handleConn(conn net.Conn){
+
+}
+
+

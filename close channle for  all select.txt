@@ -1,0 +1,50 @@
+package main
+
+import (
+	"bytes"
+	"fmt"
+	"log"
+	"runtime"
+	"strconv"
+	"sync"
+	"time"
+)
+
+func getGID() uint64 {
+	b := make([]byte, 64)
+	b = b[:runtime.Stack(b, false)]
+	b = bytes.TrimPrefix(b, []byte("goroutine "))
+	b = b[:bytes.IndexByte(b, ' ')]
+	n, _ := strconv.ParseUint(string(b), 10, 64)
+	return n
+}
+
+func main() {
+
+	var done sync.WaitGroup
+	finish := make(chan struct{})
+	const n = 100
+
+	for i := 0; i < n; i++ {
+		done.Add(1)
+		go func() {
+			select {
+			case <-time.After(1 * time.Hour):
+
+			case <-finish:
+				log.Printf("close goid %v", getGID())
+			}
+
+			done.Done()
+			log.Printf("done %v", getGID())
+		}()
+	}
+
+	t0 := time.Now()
+	close(finish)
+	done.Wait()
+	fmt.Printf("Waited %v for %d goroutines to stop\n", time.Since(t0), n)
+
+	//那么这里发生了什么？当 finish channel 被关闭后，它会立刻返回。那么所有等待接收 time.After channel 或 finish 的 goroutine 的 select 语句就立刻完成了，
+	//并且 goroutine 在调用 done.Done() 来减少 WaitGroup 计数器后退出。这个强大的机制在无需知道未知数量的 goroutine 的任何细节而向它们发送信号而成为可能，同时也不用担心死锁。
+}

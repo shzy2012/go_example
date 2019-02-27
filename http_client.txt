@@ -1,0 +1,59 @@
+package main
+
+import (
+	"io/ioutil"
+	"log"
+	"net"
+	"net/http"
+	"time"
+)
+
+func main() {
+
+	log.Println("begin job")
+
+	cUrl := "http://localhost:8080/index"
+
+	//When you use http.Get(url), you are using the http.DefaultClient,
+	//The client must close the response body when finished with it
+
+	// resp, err := http.Get(cUrl)
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
+	// defer resp.Body.Close()
+
+	newClient := &http.Client{
+		Timeout: time.Minute * 1, //设置超时时间,默认0不设置超时时间
+		Transport: &http.Transport{
+			Dial: (&net.Dialer{
+				Timeout:   30 * time.Second, //限制建立TCP连接的时间
+				KeepAlive: 30 * time.Second,
+			}).Dial,
+			TLSHandshakeTimeout:   10 * time.Second, //限制 TLS握手的时间
+			ResponseHeaderTimeout: 10 * time.Second, //限制读取response header的时间
+			ExpectContinueTimeout: 1 * time.Second,  //限制client在发送包含 Expect: 100-continue的header到收到继续发送body的response之间的时间等待。
+			MaxIdleConns:          3,                //连接池对所有host的最大连接数量，默认无穷大
+			MaxConnsPerHost:       3,                //连接池对每个host的最大连接数量。
+			IdleConnTimeout:       30 * time.Minute, //how long an idle connection is kept in the connection pool.
+		},
+	}
+
+	for i := 0; i < 10; i++ {
+
+		go func(i int) {
+
+			resp, err := newClient.Get(cUrl)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			defer resp.Body.Close()
+			buf, _ := ioutil.ReadAll(resp.Body)
+			log.Printf("%v,%s", i, string(buf))
+
+		}(i)
+	}
+
+	time.Sleep(time.Minute * 10)
+}

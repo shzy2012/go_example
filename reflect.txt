@@ -1,0 +1,69 @@
+package main
+
+import(
+	"fmt"
+	"reflect"
+)
+
+type User struct{
+	Id int `dev:29`
+	Name string `dev:joey`
+	Age int `dev:30`
+}
+
+func (u User) ReflectCallFunc() {
+	fmt.Println("Allen.Wu ReflectCallFunc")
+}
+func main()  {
+	var i interface{}="string"
+	var num float64 = 3.1415926
+
+	fmt.Println("type:",reflect.TypeOf(num))
+	fmt.Println("value:",reflect.ValueOf(num))
+
+	pointer:=reflect.ValueOf(&num)
+	value:=reflect.ValueOf(num)
+
+	convertPointer :=pointer.Interface().(*float64)
+	convertValue :=value.Interface().(float64)
+
+	fmt.Println(convertPointer)
+	fmt.Println(convertValue)
+	fmt.Println(i.(string))
+
+	user:= User{1,"joey",25}
+	fmt.Println(reflect.TypeOf(user))
+	fmt.Println(reflect.ValueOf(user))
+	DoFiledAndMethod(user)
+	//for n:=0;i<
+
+}
+
+// 通过接口来获取任意参数，然后一一揭晓
+func DoFiledAndMethod(input interface{}) {
+
+	getType := reflect.TypeOf(input)
+	fmt.Println("get Type is :", getType.Name())
+
+	getValue := reflect.ValueOf(input)
+	fmt.Println("get all Fields is:", getValue)
+
+	// 获取方法字段
+	// 1. 先获取interface的reflect.Type，然后通过NumField进行遍历
+	// 2. 再通过reflect.Type的Field获取其Field
+	// 3. 最后通过Field的Interface()得到对应的value
+	for i := 0; i < getType.NumField(); i++ {
+		tag := getType.Field(i).Tag
+		//fmt.Println(tag)
+		field := getType.Field(i)
+		value := getValue.Field(i).Interface()
+		fmt.Printf("%s: %v = %v  tag:%s \n", field.Name, field.Type, value,tag)
+	}
+
+	// 获取方法
+	// 1. 先获取interface的reflect.Type，然后通过.NumMethod进行遍历
+	for i := 0; i < getType.NumMethod(); i++ {
+		m := getType.Method(i)
+		fmt.Printf("%s: %v\n", m.Name, m.Type)
+	}
+}

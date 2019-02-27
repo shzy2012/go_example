@@ -1,0 +1,63 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"log"
+)
+
+type response1 struct {
+	Page   int
+	Fruits []string
+}
+
+type response2 struct {
+	Page   int      `json:"page"`
+	Fruits []string `json:"fruits"`
+}
+
+func main() {
+	intM, _ := json.Marshal(true)
+	log.Printf("%s\n", string(intM))
+
+	slcD := []string{"apple", "peach", "pear"}
+	slcB, _ := json.Marshal(slcD)
+	log.Println(string(slcB))
+
+	mapD := map[string]int{"apple": 5, "lettuce": 7}
+	mapB, _ := json.Marshal(mapD)
+	log.Println(string(mapB))
+
+	resp1 := &response1{
+		Page:   1,
+		Fruits: []string{"apple", "peach", "pear"},
+	}
+
+	resp1Res, _ := json.Marshal(resp1)
+	log.Printf("%s\n", string(resp1Res))
+
+	resp2 := &response2{
+		Page:   2,
+		Fruits: []string{"apple", "peach", "pear"},
+	}
+
+	resp2Res, _ := json.Marshal(resp2)
+	log.Println(string(resp2Res))
+
+	str := `{"page": 1, "fruits": ["apple", "peach"]}`
+	res := response2{}
+	resp2byte := []byte(str)
+	log.Println(resp2byte)
+	json.Unmarshal(resp2byte, &res)
+	fmt.Println(res)
+	fmt.Println(res.Fruits[0])
+
+	byt := []byte(`{"num":6.13,"strs":["a","b"]}`)
+	var dat map[string]interface{}
+	if err := json.Unmarshal(byt, &dat); err != nil {
+        panic(err)
+	}
+	fmt.Println(dat)
+	num := dat["num"].(float64)
+    fmt.Println(num)
+}
