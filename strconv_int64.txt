@@ -1,0 +1,18 @@
+package main
+
+import (
+	"fmt"
+	"strconv"
+)
+
+func main() {
+	var i64 int64
+	i64 = 34
+	s64 := strconv.FormatInt(i64, 10)
+	fmt.Println(s64)
+
+	byt := []byte("21")
+	sbyt := string(byt)
+	isbyt, _ := strconv.ParseInt(sbyt, 10, 64)
+	fmt.Println(byt, sbyt, isbyt)
+}

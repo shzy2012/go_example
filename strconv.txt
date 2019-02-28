@@ -1,0 +1,44 @@
+package main
+
+import (
+	"fmt"
+	"strconv"
+)
+
+func main() {
+
+	//The most common numeric conversions are Atoi (string to int) and Itoa (int to string).
+	str := "i am joey"
+	byts := []byte(str)
+
+	fmt.Println(string(byts))
+
+	i64, _ := strconv.Atoi("45")
+	fmt.Println(i64)
+
+	s64 := strconv.Itoa(234)
+	fmt.Println(s64)
+
+	//ParseBool, ParseFloat, ParseInt, and ParseUint convert strings to values:
+	b, _ := strconv.ParseBool("true")
+	fmt.Println(b)
+	f, _ := strconv.ParseFloat("3.1415", 64)
+	i, _ := strconv.ParseInt("2", 10, 64)
+	u, _ := strconv.ParseUint("42", 10, 64)
+	fmt.Println(f, i, u)
+
+	s := "2147483647"
+	i_64, _ := strconv.ParseInt(s, 10, 32)
+	fmt.Println(s, i_64)
+
+	s1 := strconv.FormatBool(true)
+	s2 := strconv.FormatFloat(3.1415, 'E', -1, 64)
+	s3 := strconv.FormatInt(-42, 16)
+	s4 := strconv.FormatUint(42, 16)
+
+	fmt.Println(s1, s2, s3, s4)
+
+	q1 := strconv.Quote("hello,世界")
+	q2 := strconv.QuoteToASCII("hello,世界")
+	fmt.Println(q1, q2)
+}

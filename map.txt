@@ -1,0 +1,17 @@
+package main
+
+import "fmt"
+
+func main() {
+	m := make(map[int]string)
+
+	for i := 0; i <= 5; i++ {
+		m[i] = fmt.Sprintf("map-%v", i)
+	}
+
+	delete(m, 3)
+
+	m[7] = "hel-7"
+
+	fmt.Println(m, len(m))
+}
