@@ -1,15 +1,19 @@
 package main
 
 import (
+	"encoding/binary"
 	"fmt"
-	"time"
 )
 
-func main() {
-	now := time.Now()
+func main(){
+	abyte := byte(144)
+	asint := int(abyte)
+	fmt.Println(asint)
 
-	fmt.Println("now=>", now)
-	//时间戳
-	fmt.Println("unix=>", now.Unix())
-	fmt.Println("unixNano=>", now.UnixNano())
+
+	asint64 :=int64(abyte)
+	fmt.Println(asint64)
+
+	int63:= binary.BigEndian.Uint64([]byte("1234344"))
+	fmt.Println(int63)
 }
