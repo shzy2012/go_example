@@ -1,0 +1,16 @@
+package main
+
+import (
+	"fmt"
+	"runtime"
+)
+
+func main() {
+
+	i := runtime.NumCPU()
+	fmt.Println(i)
+
+	runtime.Gosched()
+
+	runtime.GOMAXPROCS(2)
+}

@@ -12,4 +12,8 @@ func main() {
 	//时间戳
 	fmt.Println("unix=>", now.Unix())
 	fmt.Println("unixNano=>", now.UnixNano())
+
+	var t1 int
+	t1 = int(now.Unix()) //return int64
+	fmt.Println(t1)
 }

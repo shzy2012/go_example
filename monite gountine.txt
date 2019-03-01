@@ -1,0 +1,66 @@
+package main
+
+import (
+	"log"
+)
+
+var quitCh chan bool
+var count int
+
+type Eval struct {
+	quitCh     chan bool
+	maxRestart int
+	restart    int
+	workFunc   func()
+}
+
+func NewEval(workfunc func(), maxRestart int) *Eval {
+	return &Eval{
+		maxRestart: maxRestart,
+		workFunc:   workfunc,
+	}
+}
+
+func (e *Eval) minitor() {
+
+}
+
+func (e *Eval) work() {
+
+	e.workFunc()
+}
+
+func job() {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Printf("c=>%s", err)
+			quitCh <- true
+		}
+	}()
+
+	panic("i an child")
+}
+
+func main() {
+
+	quitCh = make(chan bool)
+	count = 0
+
+	go func() {
+		for {
+			<-quitCh
+			count++
+			if count == 10 {
+				log.Println("break minitor")
+				break
+			}
+
+			log.Println("current:", count)
+			go job()
+		}
+	}()
+
+	go job()
+
+	//time.Sleep(time.Minute * 3)
+}
