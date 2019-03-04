@@ -1,0 +1,35 @@
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+/**
+ * go 支持匿名函数anonymous functions，其形式就是闭包。
+ * 当不想定义函数名称时，就可以考虑使用匿名函数
+ * 闭包会保存外部函数的活动对象（变量），所以如果不把对闭包的引用消除掉，
+ * 闭包会一直存在内存中，垃圾收集器不会销毁闭包占用的内存。
+ */
+
+//函数intSeq返回一个包含变量i的匿名函数(闭包)，
+func intSeq() func() int {
+	i := 0
+	return func() int {
+		i++
+		return i
+	}
+}
+
+func main() {
+
+	//调用iniSeq，将返回的匿名函数(闭包)赋值给变量nextInt
+	//nextInt函数中包含变量i
+	nextInt := intSeq()
+	//调用nextInt，再次表用i
+	fmt.Println(nextInt())
+	fmt.Println(nextInt())
+	fmt.Println(nextInt())
+	fmt.Println(nextInt())
+	time.Sleep(1e9) //停留1s
+}

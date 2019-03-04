@@ -1,0 +1,94 @@
+package main
+
+import (
+	"fmt"
+	"strconv"
+)
+
+type IFace interface {
+	SetSomeField(newValue string)
+	GetSomeField() string
+}
+
+type Implementation struct {
+	someField string
+}
+
+func (i *Implementation) GetSomeField() string {
+	return i.someField
+}
+
+func (i *Implementation) SetSomeField(newValue string) {
+	i.someField = newValue
+}
+
+func Create() *Implementation {
+	return &Implementation{someField: "Hello"}
+}
+
+func decribe(i interface{}) {
+	fmt.Printf("%v,%T\n", i, i)
+}
+
+func Any(i IFace) {
+	decribe(i)
+	str := i.GetSomeField()
+	fmt.Println("get string is", str)
+}
+
+func AnyObject(i interface{}) {
+	decribe(i)
+	str := i.(*Implementation).GetSomeField()
+	fmt.Println("get object is", str)
+}
+
+type Binary uint64
+
+type Stringer interface {
+	String() string
+}
+
+type ABC struct {
+	name string
+	hit  string
+}
+
+func (a *ABC) String() string {
+	return a.name
+}
+
+func ToString(any interface{}) string {
+	if v, ok := any.(Stringer); ok {
+		return v.String()
+	}
+
+	switch v := any.(type) {
+	case int:
+		return strconv.Itoa(v)
+	case float64:
+		return strconv.FormatFloat(v, 'E', -1, 64)
+	}
+	return "???"
+}
+
+func main() {
+	var a IFace
+	decribe(a)
+	a = Create()
+	decribe(a)
+	a.SetSomeField("World")
+	fmt.Println(a.GetSomeField())
+
+	Any(a)
+	AnyObject(a)
+
+	b := Binary(200)
+	any := (interface{})(b)
+	fmt.Println(any)
+
+	var stg Stringer
+	stg = &ABC{"shzy", "joey"}
+	fmt.Println(stg.String())
+	fmt.Println(ToString(stg))
+	decribe(stg)
+}

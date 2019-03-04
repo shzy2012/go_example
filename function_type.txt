@@ -1,0 +1,54 @@
+package main
+
+import (
+	"fmt"
+)
+
+/*
+ * The function type denotes the set of all functions with the same parameter and result types.
+ * 函数类型是表示所有包含相同参数和返回类型的函数集合
+ */
+
+//定义函数
+type Greeting func(name string) string
+
+//作为Greeting的方法
+func (g Greeting) say(name string) {
+	fmt.Println("say=>", g(name))
+	fmt.Println("backend exec")
+}
+
+//将Greeting作为参数
+func say2(g Greeting, name string) {
+	fmt.Println("say2=>", g(name))
+}
+
+//保持与Greeting相同参数和返回值
+func english(name string) string {
+	return "english=>" + name
+}
+
+//保持与Greeting相同参数和返回值
+func french(name string) string {
+	return "french=>" + name
+}
+
+func main() {
+	g := Greeting(english)
+	g.say("world")
+	say2(g, "world")
+
+	g = Greeting(french)
+
+	g.say("world")
+	say2(g, "world")
+
+	//匿名函数
+	g = Greeting(func(name string) string {
+		fmt.Println("frotend exec")
+		return "unname=>" + name
+	})
+
+	g.say("world")
+	say2(g, "world")
+}
