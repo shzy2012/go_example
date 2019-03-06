@@ -1,0 +1,46 @@
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+//https://www.goin5minutes.com/blog/channel_over_channel/
+func main() {
+
+	sendCh := make(chan chan time.Duration)
+	perCh := make(chan time.Duration)
+	go func() {
+		for i := 0; i < 10; i++ {
+			perCh <- time.Duration(i+1) * time.Second
+			sendCh <- perCh
+			fmt.Println("send chan", (i + 1))
+		}
+	}()
+
+	go func() {
+		for {
+
+			select {
+			case ch, ok := <-sendCh:
+				fmt.Println(ch, ok, "master")
+				if !ok {
+					return
+				}
+			}
+		}
+	}()
+
+	go func() {
+		for {
+			v, ok := <-perCh
+			fmt.Println(v, ok, "outer")
+			if !ok {
+				return
+			}
+		}
+	}()
+
+	time.Sleep(time.Second * 3)
+	//wg.Wait()
+}
