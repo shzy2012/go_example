@@ -1,0 +1,55 @@
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+type Future func() string
+
+func F() chan string {
+	futureCh := make(chan string)
+	go func() {
+		futureCh <- "form future data"
+		close(futureCh)
+	}()
+
+	return futureCh
+}
+
+func main() {
+
+	ch := make(chan string)
+
+	var syncFunc Future
+
+	//异步函数
+	syncFunc = func() string {
+
+		//start a gouroutine
+		go func() {
+			//函数执行耗时
+			time.Sleep(time.Second * 3)
+			ch <- "send data."
+			close(ch)
+		}()
+
+		//监听
+		for {
+			select {
+			case v, _ := <-ch:
+				return v
+			case <-time.After(time.Second * 4):
+				return "timeout"
+			}
+		}
+
+	}
+
+	fmt.Printf("%s\n", syncFunc())
+
+	f1, _ := <-F()
+	fmt.Println(f1)
+
+	time.Sleep(time.Second)
+}

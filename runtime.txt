@@ -13,4 +13,6 @@ func main() {
 	runtime.Gosched()
 
 	runtime.GOMAXPROCS(2)
+
+	fmt.Printf("current os is '%s'\n", runtime.GOOS)
 }

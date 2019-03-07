@@ -1,0 +1,78 @@
+package main
+
+import (
+	"bytes"
+	"fmt"
+	"io"
+	"log"
+	"os"
+	"os/exec"
+)
+
+func main() {
+
+	/*****执行命令获取输出****/
+	// cmd := exec.Command("ls", "-lah")
+	// out, err := cmd.CombinedOutput()
+	// if err != nil {
+	// 	log.Fatalf("cmd.Run() failed with %s\n", err)
+	// }
+	// fmt.Printf("combined out:\n%s\n", string(out))
+
+	/*将stdout和stderr分别处理*/
+	// cmd := exec.Command("ls", "-lah")
+	// var stdout, stderr bytes.Buffer
+	// cmd.Stdout = &stdout
+	// cmd.Stderr = &stderr
+	// err := cmd.Run()
+	// if err != nil {
+	// 	log.Fatalf("cmd.Run() failed with %s\n", err)
+	// }
+
+	// outStr, errStr := string(stdout.Bytes()), string(stderr.Bytes())
+	// fmt.Printf("out:\n%s\nerr:\n%s\n", outStr, errStr)
+
+	/*预先检查程序是否存在*/
+	path, err := exec.LookPath("ls")
+	if err != nil {
+		fmt.Printf("didn't find 'ls' executable\n")
+	} else {
+		fmt.Printf("'ls' executable is in '%s'\n", path)
+	}
+
+	/*命令执行过程获取输出*/
+
+	var stdoutBuf, stderrBuf bytes.Buffer
+	cmd := exec.Command("ls", "-lah")
+	stdoutIn, _ := cmd.StdoutPipe()
+	stderrIn, _ := cmd.StderrPipe()
+
+	var errStdout, errStderr error
+	stdout := io.MultiWriter(os.Stdout, &stdoutBuf)
+	stderr := io.MultiWriter(os.Stderr, &stderrBuf)
+
+	err = cmd.Start()
+	if err != nil {
+		log.Fatalf("cmd.Start() failed with '%s'\n", err)
+	}
+
+	go func() {
+		_, errStdout = io.Copy(stdout, stdoutIn)
+	}()
+
+	go func() {
+		_, errStderr = io.Copy(stderr, stderrIn)
+	}()
+
+	err = cmd.Wait()
+	if err != nil {
+		log.Fatalf("cmd.Run() failed with %s\n", err)
+	}
+	if errStdout != nil || errStderr != nil {
+		log.Fatal("failed to capture stdout or stderr\n")
+	}
+
+	outStr, errStr := string(stdoutBuf.Bytes()), string(stderrBuf.Bytes())
+	fmt.Printf("\nout:\n%s\nerr:\n%s\n", outStr, errStr)
+
+}

@@ -1,0 +1,53 @@
+package main
+
+import (
+	"bytes"
+	"fmt"
+	"runtime"
+	"strconv"
+)
+
+var counter int
+
+func getGID() uint64 {
+	b := make([]byte, 64)
+	b = b[:runtime.Stack(b, false)]
+	b = bytes.TrimPrefix(b, []byte("goroutine "))
+	b = b[:bytes.IndexByte(b, ' ')]
+	n, _ := strconv.ParseUint(string(b), 10, 64)
+	return n
+}
+
+func main() {
+
+	done := make(chan bool)
+	//通过阻塞channel保证计数的原子性
+	l := make(chan bool)
+	workSize := 1000
+
+	for i := 0; i < workSize; i++ {
+
+		go func() {
+			//获取channle才能够执行
+			select {
+			case <-l:
+				fmt.Println("current G id: ", getGID())
+				counter++
+				done <- true
+				l <- true
+			}
+		}()
+	}
+
+	l <- true
+
+	n := 0
+	for range done {
+		n++
+		if n == workSize {
+			break
+		}
+	}
+
+	fmt.Println(counter)
+}
