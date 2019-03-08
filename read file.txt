@@ -1,0 +1,91 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"io"
+	"os"
+)
+
+func Headle(str string) {
+	fmt.Println(str)
+}
+
+func Headle2(bys []byte) {
+	fmt.Println((string(bys)))
+}
+
+func main() {
+	filePath := "readme.md"
+	//ReadFile(filePath, Headle)
+	ReadBigFile(filePath, Headle2)
+
+	/**********************/
+	// fBytes, err := ioutil.ReadFile(filePath)
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
+
+	// fmt.Printf("%s", string(fBytes))
+
+	// f, err := os.Open(filePath)
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
+
+	// buf, err := bufio.NewReader()
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
+
+}
+
+func ReadFile(filePath string, handle func(string)) error {
+	f, err := os.Open(filePath)
+	defer f.Close()
+	if err != nil {
+		return err
+	}
+
+	buf := bufio.NewReader(f)
+	counter := 0
+	for {
+		lineBytes, _, err := buf.ReadLine()
+		line := string(lineBytes)
+		handle(line)
+		counter++
+
+		if err != nil {
+			if err == io.EOF {
+				return nil
+			}
+
+			return err
+		}
+		return nil
+	}
+}
+
+func ReadBigFile(fileName string, handle func([]byte)) error {
+	f, err := os.Open(fileName)
+	if err != nil {
+		fmt.Println("can't opened this file")
+		return err
+	}
+
+	defer f.Close()
+	s := make([]byte, 4096)
+	for {
+		switch nr, err := f.Read(s); true {
+		case nr < 0:
+			fmt.Fprintf(os.Stderr, "cat: error reading: %s\n", err.Error())
+			os.Exit(1)
+		case nr == 0: // EOF
+			return nil
+		case nr > 0:
+			handle(s[0:nr])
+		}
+	}
+
+	return nil
+}
