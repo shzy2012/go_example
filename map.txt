@@ -2,7 +2,10 @@ package main
 
 import "fmt"
 
+type Handle func(param string) string
+
 func main() {
+
 	m := make(map[int]string)
 
 	for i := 0; i <= 5; i++ {
@@ -22,4 +25,30 @@ func main() {
 	m[1] = "test"
 	fmt.Println(m)
 	fmt.Println(m1)
+
+	mp1 := make(map[string]Handle)
+	mp1["h1"] = func(parame string) string {
+		fmt.Println("i am handle 1", parame)
+		return "he-1"
+	}
+
+	//map with function
+	mp1["h2"] = func(parame string) string {
+		fmt.Println("i am handle 2", parame)
+		return "he-2"
+	}
+
+	for k, v := range mp1 {
+		fmt.Println(k, v)
+		mp1[k]("hello")
+	}
+
+	for k, v := range mp1 {
+		switch k {
+		case "h1":
+			fmt.Println(v("h1"))
+		case "h2":
+			v("h2")
+		}
+	}
 }
