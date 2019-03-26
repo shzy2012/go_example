@@ -1,0 +1,43 @@
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+type MyMap struct {
+	list map[string]string
+	ch   chan *keyValue
+}
+
+func NewMyMap() *MyMap {
+	return &MyMap{
+		list: make(map[string]string, 10),
+		ch:   make(chan *keyValue),
+	}
+}
+
+func (t *MyMap) UpdateMap() {
+	for {
+		k, v := <-t.ch
+		fmt.Println(k, v)
+	}
+}
+
+type keyValue struct {
+	K string
+	V string
+}
+
+func main() {
+	v := NewMyMap()
+	go v.UpdateMap()
+
+	for i := 0; i < 10; i++ {
+		go func(i int) {
+			v.ch <- &keyValue{fmt.Sprintf("%d", i), "hello"}
+		}(i)
+	}
+
+	time.Sleep(time.Second * 3)
+}
