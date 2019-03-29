@@ -1,0 +1,66 @@
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+
+	generator := func(done <-chan interface{}, integers ...int) <-chan int {
+		intStream := make(chan int)
+		go func() {
+			defer close(intStream)
+			for _, v := range integers {
+				select {
+				case <-done:
+					return
+				case intStream <- v:
+					//fmt.Printf("product=>%v\n", v)
+				}
+			}
+		}()
+		return intStream
+	}
+
+	multiply := func(done <-chan interface{}, intStream <-chan int, param int) <-chan int {
+		ch := make(chan int)
+		go func() {
+			defer close(ch)
+			for ele := range intStream {
+				//fmt.Printf("--%v-- \n", i)
+				select {
+				case <-done:
+					return
+				case ch <- ele * param:
+				}
+			}
+		}()
+		return ch
+	}
+
+	add := func(done <-chan interface{}, intStream <-chan int, param int) <-chan int {
+		ch := make(chan int)
+		go func() {
+			defer close(ch)
+			for i := range intStream {
+				select {
+				case <-done:
+					return
+				case ch <- i + param:
+				}
+			}
+		}()
+		return ch
+	}
+
+	done := make(chan interface{})
+	defer close(done)
+	intStream := generator(done, 1, 2, 3, 4)
+	pipeline := multiply(done, add(done, intStream, 1), 2)
+	for ele := range pipeline {
+		fmt.Println(ele)
+	}
+
+	time.Sleep(1e9)
+}

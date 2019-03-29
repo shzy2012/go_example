@@ -1,0 +1,63 @@
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+/*sync.Cond 用途
+与互斥量不同，条件变量的作用并不是保证在同一时刻仅有一个线程访问某一个共享数据，而是在对应的共享数据的状态发生变化时，通知其他因此而被阻塞的线程。
+条件变量总是与互斥量组合使用。互斥量为共享数据的访问提供互斥支持，
+而条件变量可以就共享数据的状态的变化向相关线程发出通知。
+*/
+
+type Button struct {
+	Clicked *sync.Cond
+}
+
+func NewButton() *Button {
+	return &Button{
+		Clicked: sync.NewCond(&sync.Mutex{}),
+	}
+}
+
+func main() {
+
+	button := NewButton()
+	subscribe := func(c *sync.Cond, fn func()) {
+		var goroutineRunning sync.WaitGroup
+		goroutineRunning.Add(1)
+		go func() {
+			goroutineRunning.Done()
+			/*
+			 抢占锁后，判断自己是否满足处理 条件，如果不满足则先 释放锁给别人用，
+			 然后自己 阻塞，等别人主动 通知自己(肯定是别人的事情做完了才会通知自己)，
+			 就解除阻塞，然后再去 获得锁
+			*/
+			c.L.Lock()
+			defer c.L.Unlock()
+			c.Wait() //不只是阻塞，它挂起当前的goroutine
+			fn()
+		}()
+		goroutineRunning.Wait()
+	}
+
+	var clickRegistered sync.WaitGroup
+	clickRegistered.Add(3)
+
+	subscribe(button.Clicked, func() {
+		fmt.Println("Maximizing window.")
+		clickRegistered.Done()
+	})
+	subscribe(button.Clicked, func() {
+		fmt.Println("Displaying annoying dialog box.")
+		clickRegistered.Done()
+	})
+	subscribe(button.Clicked, func() {
+		fmt.Println("Mouse clicked.")
+		clickRegistered.Done()
+	})
+
+	button.Clicked.Broadcast()
+	clickRegistered.Wait()
+}

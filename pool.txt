@@ -1,0 +1,36 @@
+package main
+
+import "sync"
+
+func main() {
+
+	var numCalcsCreated int
+	calcPool := &sync.Pool{
+		New: func() interface{} {
+			numCalcsCreated += 1
+			mem := make([]byte, 1024)
+			return &mem
+		},
+	}
+
+	//初始化pool,4KB
+	calcPool.Put(calcPool.New())
+	calcPool.Put(calcPool.New())
+	calcPool.Put(calcPool.New())
+	calcPool.Put(calcPool.New())
+
+	const numWorkers = 1024 * 1024
+	var wg sync.WaitGroup
+	wg.Add(numWorkers)
+	for i := 0; i < numWorkers; i++ {
+		go func() {
+			defer wg.Done()
+			mem := calcPool.Get().(*[]byte)
+			defer calcPool.Put(mem)
+
+			//do something
+		}()
+	}
+
+	wg.Wait()
+}
