@@ -1,0 +1,45 @@
+package main
+
+import (
+	"log"
+	"net/http"
+	_ "net/http/pprof"
+	"os"
+	"runtime/pprof"
+	"time"
+)
+
+func newProfIfNotDef(name string) *pprof.Profile {
+	prof := pprof.Lookup(name)
+	if prof == nil {
+		prof = pprof.NewProfile(name)
+	}
+	return prof
+}
+
+func main() {
+	log.SetFlags(log.Ltime | log.LUTC)
+	log.SetOutput(os.Stdout)
+
+	//每1s log都会记录有多少个goroutine在并发执行
+	go func() {
+		goroutines := newProfIfNotDef("goroutine")
+		for range time.Tick(1e9) {
+			log.Printf("goroutine count:%d\n", goroutines.Count())
+		}
+	}()
+
+	go func() {
+		log.Println(http.ListenAndServe("localhost:8080", nil))
+	}()
+	//创建一些永远不会推出的goroutine
+	var blockForever chan struct{}
+	for i := 0; i < 10; i++ {
+		go func() {
+			<-blockForever
+		}()
+		time.Sleep(500 * time.Microsecond)
+	}
+
+	time.Sleep(time.Second * 100000)
+}
