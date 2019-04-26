@@ -1,0 +1,13 @@
+package main
+
+import (
+	"fmt"
+	"strings"
+)
+
+func main() {
+
+	similarQuestion := "###A###B###C"
+	similarQuestion = strings.Replace(similarQuestion, "###", "", 1)
+	fmt.Println(similarQuestion)
+}
