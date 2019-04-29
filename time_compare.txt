@@ -1,0 +1,46 @@
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+
+	t1 := time.Now()
+	t2 := time.Now().Add(1)
+
+	if t1.Unix() > t2.Unix() {
+		fmt.Println("t1>t2")
+	} else {
+		fmt.Println("t1<t2")
+	}
+
+	// startDate := "2019-02-01"
+	// layout := "2006-01-02"
+	// //开始时间
+	// var date time.Time
+	// var err error
+	// //TODO:处理开始时间 存入mongo
+	// //2019-03-03 00:00:00
+	// if strings.TrimSpace(startDate) != "" {
+
+	// 	date, err = time.Parse(layout, startDate)
+	// 	if err != nil {
+	// 		log.Fatalf("[time.Parse ERROR]=> %s. \n", err)
+	// 	}
+	// } else {
+	// 	date = time.Now()
+	// }
+
+	// fmt.Printf("%s", date.Format(layout))
+	// layout := "2014-09-12"
+	// str := "2014-11-12"
+	// t, err := time.Parse(layout, str)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// fmt.Println(t)
+	// t1 := time.Now()
+	// fmt.Println(t1.Format("2006-01-02 15:04"))
+}

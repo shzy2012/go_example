@@ -19,6 +19,7 @@ type Publisher struct {
 	subscribes map[subscribe]topicFunc //订阅者信息
 }
 
+
 //发布一个主题
 func (p *Publisher) Publish(v interface{}) {
 	p.m.Lock()
