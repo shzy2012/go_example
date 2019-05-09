@@ -1,0 +1,45 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+)
+
+func main() {
+
+	sigs := make(chan os.Signal, 1)
+	done := make(chan bool)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	ctx, _ := context.WithCancel(context.Background())
+
+	go func() {
+		for {
+
+			println("---1---")
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				time.Sleep(time.Second * 1)
+			}
+
+			println("---2---")
+		}
+	}()
+
+	go func() {
+		sig := <-sigs
+		fmt.Println()
+		fmt.Println(sig)
+		done <- true
+	}()
+
+	<-done
+	log.Println("[IAM]=>stop service.")
+
+}

@@ -1,0 +1,35 @@
+package main
+import (
+  "fmt"
+  "os"
+  "log"
+)
+
+
+type Us struct{
+	Name string
+}
+
+func main(){
+  us :=new(Us)
+  
+  if us.Name==""{
+	  
+  }
+  fmt.Printf("%+v \n",us)
+
+  status:=true
+  fmt.Printf("%v \n",status)
+
+  f, err := os.OpenFile("testlogfile", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+  if err != nil {
+      log.Fatalf("error opening file: %v", err)
+  }
+  defer f.Close()
+
+  log.SetOutput(f)
+  log.Println("This is a test log entry")
+  log.Printf("%s-%s","23","ha")
+
+
+}

@@ -1,0 +1,31 @@
+package main
+
+import(
+	"fmt"
+	"net/smtp"
+)
+func main(){
+
+	// Set up authentication information.
+	auth := smtp.PlainAuth("", "notify@laiye.com", "TGFpeWVAMjAxNQo=5", "smtp.exmail.qq.com")
+	//auth :=smtp.CRAMMD5Auth("notify@laiye.com", "TGFpeWVAMjAxNQo=5")// LoginAuth("zhouyi@laiye.com", "Laiye2019")
+
+	// Connect to the server, authenticate, set the sender and recipient,
+	// and send the email all in one step.
+	to := []string{"baohaoze@laiye.com","zhouyi@laiye.com"}
+
+	body :=
+		"From: notify@laiye.com\r\n" +
+		"To: baohaoze@laiye.com,zhouyi@laiye.com\r\n" +
+		"Subject: 未凡生物测试邮件!\r\n" +
+		"\r\n" +
+		"This is the email <h1>body<h1>.\r\n"
+
+	bodyBytes := []byte(body)
+	err := smtp.SendMail("smtp.exmail.qq.com:25", auth, "notify@laiye.com", to, bodyBytes)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println("send success.")
+	}
+}
