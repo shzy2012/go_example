@@ -16,4 +16,14 @@ func main() {
 	var t1 int
 	t1 = int(now.Unix()) //return int64
 	fmt.Println(t1)
+
+	//2000-01-01 12:00:00
+	//2006-01-02 15:04:05
+
+	fmt.Println(time.Now().Format("2006-01-02 15:04:05"))
+
+	fmt.Println(time.Now().Hour())
+
+	//time.Sleep(time.Second*100)
+
 }
