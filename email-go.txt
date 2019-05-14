@@ -1,0 +1,27 @@
+package main
+
+import (
+	"gopkg.in/gomail.v2"
+	"io"
+)
+func main(){
+	m := gomail.NewMessage()
+	m.SetHeader("From", "sh-notify@laiye.com")
+	m.SetHeader("To", "baohaoze@laiye.com", "zhouyi@laiye.com")
+	//m.SetAddressHeader("Cc", "baohaoze@laiye.com", "baohaoze")
+	m.SetHeader("Subject", "Hello!")
+	m.SetBody("text/html", "Hello <b>Bob</b> and <i>Cora</i>!")
+	m.Attach("/Users/Joey/Downloads/convertcsv.xlsx")
+	m.Attach("测试.txt", gomail.SetCopyFunc(func(w io.Writer) error {
+		_, err := w.Write([]byte("Content of foo.txt"))
+		return err
+	}))
+
+	//d := gomail.NewDialer("smtp.exmail.qq.com", 25, "swat-logreport@laiye.com", "Lai2015")
+	//d := gomail.NewPlainDialer("smtp.exmail.qq.com", 25, "swat-logreport@laiye.com", "Lai2015")
+	d:=gomail.NewPlainDialer("smtp.exmail.qq.com", 25, "sh-notify@laiye.com", "Passwd@2019")
+	// Send the email to Bob, Cora and Dan.
+	if err := d.DialAndSend(m); err != nil {
+		panic(err)
+	}
+}
