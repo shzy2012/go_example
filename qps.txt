@@ -1,0 +1,77 @@
+package main
+
+import (
+	"net"
+	"net/http"
+	"time"
+	"io"
+	"io/ioutil"
+	"sync/atomic"
+	"log"
+)
+
+//NewGet qps
+func NewGet()*http.Client{
+	return  &http.Client{
+		Timeout: time.Minute * 1, //设置超时时间,默认0不设置超时时间
+		Transport: &http.Transport{
+			Dial: (&net.Dialer{
+				Timeout:   30 * time.Second, //限制建立TCP连接的时间
+				KeepAlive: 30 * time.Second,
+			}).Dial,
+			TLSHandshakeTimeout:   10 * time.Second, //限制 TLS握手的时间
+			ResponseHeaderTimeout: 10 * time.Second, //限制读取response header的时间
+			ExpectContinueTimeout: 1 * time.Second,  //限制client在发送包含 Expect: 100-continue的header到收到继续发送body的response之间的时间等待。
+			MaxIdleConns:          100,                //连接池对所有host的最大连接数量，默认无穷大
+			MaxConnsPerHost:       100,                //连接池对每个host的最大连接数量。
+			IdleConnTimeout:       30 * time.Minute, //how long an idle connection is kept in the connection pool.
+		},
+	}
+}
+
+func work(msgChan chan int,client *http.Client){
+   for {
+	   select {
+	   case  <-msgChan:{
+			resp, err := client.Get(cUrl)
+			if err != nil {
+				return
+			}
+			defer resp.Body.Close()
+		
+			//buf, _ := ioutil.ReadAll(resp.Body)
+			io.Copy(ioutil.Discard, resp.Body)
+			//log.Printf("%v,%s", i, string(buf))
+
+			atomic.AddInt64(&opts, 1) //加操作
+			log.Println("opts: ", atomic.LoadInt64(&opts))
+	   }
+	   }
+   }
+}
+
+var cUrl = "http://127.0.0.1:8080"
+//原子计数器
+var opts int64 = 0
+
+
+func main(){
+
+	client:=NewGet()
+
+	msgchan :=make(chan int,360)
+	for i:=0;i<100;i++{
+		go work(msgchan,client)
+	}
+
+
+	go func(){
+		for i:=0;i<500000000;i++{
+			msgchan<-i
+		}
+	}()
+	
+
+	time.Sleep(time.Second*60)
+	log.Println("opts: ", atomic.LoadInt64(&opts))
+}
