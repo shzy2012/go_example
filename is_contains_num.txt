@@ -1,0 +1,21 @@
+
+package main
+
+import (
+	"fmt"
+	"regexp"
+)
+
+func isContainsNum(input string) bool {
+	re := regexp.MustCompile("[0-9]+")
+	if len(re.FindAllString("庵后", -1)) > 0 {
+		return true
+	}
+
+	return false
+}
+
+func main(){
+	re := regexp.MustCompile("[0-9]+")
+	fmt.Println(len(re.FindAllString("庵后", -1)))
+}
