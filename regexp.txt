@@ -1,0 +1,23 @@
+package main
+
+import (
+	"fmt"
+	"regexp"
+	"unicode"
+)
+
+func IsChineseChar(str string) bool {
+	for _, r := range str {
+		if unicode.Is(unicode.Scripts["Han"], r) {
+			return true
+		}
+	}
+	return false
+}
+
+func main() {
+	str := "张三张三"
+    var hzRegexp = regexp.MustCompile("^[\u4e00-\u9fa5]+(·[\u4e00-\u9fa5]+)*$")
+	fmt.Println(hzRegexp.MatchString(str))
+	fmt.Println(len(str))
+}
