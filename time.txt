@@ -26,4 +26,29 @@ func main() {
 
 	//time.Sleep(time.Second*100)
 
+	timer1 := time.NewTimer(2 * time.Second)
+
+	go func() {
+		<-timer1.C
+		fmt.Println("Timer 2 expired")
+	}()
+
+	for {
+		fmt.Println("per senond *5")
+		now := time.Now()
+        // 计算下一个零点
+        next := now.Add(time.Second * 5)
+        next = time.Date(next.Year(), next.Month(), next.Day(), 0, 0, 0, 0, next.Location())
+        t := time.NewTimer(next.Sub(now))
+        <-t.C
+	}
+
+	for range time.Tick(2 * time.Second) {
+		fmt.Println("--")
+		if time.Now().Hour() == 8 {
+			fmt.Println("--")
+		}
+	}
+
+	time.Sleep(time.Second * 10)
 }
