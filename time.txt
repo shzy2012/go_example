@@ -8,7 +8,7 @@ import (
 func main() {
 	now := time.Now()
 
-	fmt.Println("now=>", now)
+	fmt.Println("now=>", now.Add(-time.Hour))
 	//时间戳
 	fmt.Println("unix=>", now.Unix())
 	fmt.Println("unixNano=>", now.UnixNano())
@@ -33,15 +33,15 @@ func main() {
 		fmt.Println("Timer 2 expired")
 	}()
 
-	for {
-		fmt.Println("per senond *5")
-		now := time.Now()
-        // 计算下一个零点
-        next := now.Add(time.Second * 5)
-        next = time.Date(next.Year(), next.Month(), next.Day(), 0, 0, 0, 0, next.Location())
-        t := time.NewTimer(next.Sub(now))
-        <-t.C
-	}
+	// for {
+	// 	fmt.Println("per senond *5")
+	// 	now := time.Now()
+    //     // 计算下一个零点
+    //     next := now.Add(time.Second * 5)
+    //     next = time.Date(next.Year(), next.Month(), next.Day(), 0, 0, 0, 0, next.Location())
+    //     t := time.NewTimer(next.Sub(now))
+    //     <-t.C
+	// }
 
 	for range time.Tick(2 * time.Second) {
 		fmt.Println("--")
