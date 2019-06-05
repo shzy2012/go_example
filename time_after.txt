@@ -1,0 +1,27 @@
+package main
+import "time"
+import "log"
+
+func main(){
+	var startTime time.Time
+	startTime = time.Now().Add(-time.Hour)
+
+	for{
+		for{
+			endTime := startTime.Add(time.Hour)
+			if startTime.After(time.Now()) {
+				startTime = time.Now() //确保每小时同步一次
+				break
+			}
+
+			log.Printf("startDateFormat:%v -- endDateFormat:%v \n,", startTime, endTime)
+
+			startTime = endTime
+		}
+
+
+
+		println("2")
+		time.Sleep(time.Second)
+	}
+}

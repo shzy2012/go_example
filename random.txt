@@ -1,0 +1,20 @@
+package main
+
+import (
+  // "math/rand"
+  // "time"
+  "crypto/rand"
+  "math/big"
+  "fmt"
+)
+
+func main() {
+  //rand.Seed(int64(time.Now().UnixNano()))
+  //println(rand.Int())
+  
+  // 生成 20 个 [0, 100) 范围的真随机数。
+  for i := 0; i < 20; i++ {
+    result, _ := rand.Int(rand.Reader, big.NewInt(100))
+    fmt.Printf("%v\n",result)
+  }
+}

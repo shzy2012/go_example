@@ -39,7 +39,7 @@ Day of week  | Yes        | 0-6 or SUN-SAT  | * / , - ?
 func job(){
     i := 0
     c := cron.New()
-    spec := "0 0 15 * * *" //19点 5-10分之内，每分钟发次
+    spec := "* 26 15 * * *" //19点 5-10分之内，每分钟发次
     c.AddFunc(spec, func() {
         i++
         log.Println("start", i)
