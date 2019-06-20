@@ -1,0 +1,50 @@
+package main
+
+import (
+	"sync"
+	"fmt"
+	"time"
+)
+
+//SafeMap
+type SafeMap struct {
+	list map[string]string
+	sync.RWMutex
+}
+
+func NewSafeMap() *SafeMap{
+	return &SafeMap{
+		list:make(map[string]string),
+	}
+}
+
+func (m *SafeMap) Add(k, v string) {
+	m.Lock()
+	defer m.Unlock()
+	m.list[k] = v
+}
+
+func (m *SafeMap) Get(k string) string {
+	m.RLock()
+	defer m.RUnlock()
+	k, ok := m.list[k]
+	if ok {
+		return k
+	}
+	return ""
+}
+
+func main() {
+	sm := NewSafeMap()
+	
+
+	
+	for i := 0; i < 100; i++ {
+		go sm.Add(fmt.Sprintf("key-%v",i),fmt.Sprintf("value-%v",i))
+	}
+
+	fmt.Println(sm.Get("key-1"))
+
+	time.Sleep(time.Second*1)
+}
+
