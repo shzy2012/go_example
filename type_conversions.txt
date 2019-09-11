@@ -1,0 +1,25 @@
+package main
+
+import "fmt"
+
+type ByteCounter int
+
+func main() {
+	bc := ByteCounter(3)
+	i := int(10)
+	s := string("34")
+	fmt.Printf("%v - %v -%s  \n", bc, i, s)
+
+    var i interface{} = "hello"
+	s := i.(string)
+	fmt.Println(s)
+
+	s, ok := i.(string)
+	fmt.Println(s, ok)
+
+	f, ok := i.(float64)
+	fmt.Println(f, ok)
+
+	f = i.(float64) // panic
+	fmt.Println(f)
+}

@@ -1,0 +1,19 @@
+package main
+
+import "fmt"
+
+type Direction string
+
+const (
+	BACKWARD Direction = "BACKWARD"
+	FORWARD  Direction = "FORWARD"
+)
+
+func f1(value Direction) {
+	fmt.Printf("枚举值：%s\n", value)
+}
+
+func main() {
+	f1(BACKWARD)
+	f1(FORWARD)
+}
