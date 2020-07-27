@@ -1,0 +1,52 @@
+package main
+
+import (
+	"fmt"
+
+	"golang.org/x/sys/unix"
+)
+
+func main() {
+	kq, err := kqueue()
+	if err != nil {
+		fmt.Printf("%s\n", err.Error())
+		return
+	}
+
+	fmt.Printf("fd:%v\n", kq)
+}
+
+// kqueue creates a new kernel event queue and returns a descriptor.
+func kqueue() (kq int, err error) {
+	kq, err = unix.Kqueue()
+	if kq == -1 {
+		return kq, err
+	}
+	return kq, nil
+}
+
+// register events with the queue
+func register(kq int, fds []int, flags int, fflags uint32) error {
+	changes := make([]unix.Kevent_t, len(fds))
+	for i, fd := range fds {
+		// SetKevent converts int to the platform-specific types:
+		unix.SetKevent(&changes[i], fd, unix.EVFILT_VNODE, flags)
+		changes[i].Fflags = fflags
+	}
+	// register the events
+	success, err := unix.Kevent(kq, changes, nil, nil)
+	if success == -1 {
+		return err
+	}
+	return nil
+}
+
+// read retrieves pending events, or waits until an event occurs.
+// A timeout of nil blocks indefinitely, while 0 polls the queue.
+func read(kq int, events []unix.Kevent_t, timeout *unix.Timespec) ([]unix.Kevent_t, error) {
+	n, err := unix.Kevent(kq, nil, events, timeout)
+	if err != nil {
+		return nil, err
+	}
+	return events[0:n], nil
+}
