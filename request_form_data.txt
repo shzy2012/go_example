@@ -20,8 +20,9 @@ func main() {
 			w.Write([]byte(err.Error()))
 			return
 		}
-		fmt.Printf("sdz.Filename=>%s\nsdz.Size==>%v\nmedia=>%s\n", sdz.Filename, sdz.Size, sdz.Header.Get("Content-Type"))
+		fmt.Printf("sdz.Filename=>%s\n sdz.Size==>%v\n media=>%s\n", sdz.Filename, sdz.Size, sdz.Header.Get("Content-Type"))
 
+		
 		// copy example
 		f, err := os.OpenFile(sdz.Filename, os.O_WRONLY|os.O_CREATE, 0666)
 		defer f.Close()
