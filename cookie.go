@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/cookie-set", func(w http.ResponseWriter, r *http.Request) {
 
 		expiration := time.Now().Add(24 * time.Hour)
 		cookie := http.Cookie{Name: "d", Value: "i am cookie", Expires: expiration}
