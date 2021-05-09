@@ -6,6 +6,13 @@ import (
 
 func main() {
 
+	/*
+		type slice struct {
+			array unsafe.Pointer
+			len   int
+			cap   int
+		}
+	*/
 	a := []int{0, 1, 2}
 	b := a
 
