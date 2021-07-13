@@ -1,5 +1,6 @@
 package main
 
+// 内置(builtin)函数指定标准
 // 定义 builtin error
 type error interface {
 	Error() string
