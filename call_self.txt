@@ -1,0 +1,20 @@
+package main
+
+import "time"
+
+func main() {
+
+	go hello()
+	select {}
+}
+
+func hello() {
+
+	defer func() {
+		println("call hello")
+		hello()
+	}()
+
+	println("hello running")
+	time.Sleep(time.Second * 3)
+}
