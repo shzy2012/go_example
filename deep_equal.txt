@@ -1,0 +1,15 @@
+package main
+
+import (
+	"fmt"
+	"reflect"
+)
+
+func main() {
+	a := []int{4, 5, 6}
+	b := []int{4, 5, 6}
+	c := []int{4, 5, 6, 7}
+
+	fmt.Println(reflect.DeepEqual(a, b))
+	fmt.Println(reflect.DeepEqual(a, c))
+}
