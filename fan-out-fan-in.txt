@@ -1,0 +1,70 @@
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+// https://go.dev/blog/pipelines
+
+// Fan-out, fan-in
+
+func main() {
+	in := gen(2, 3)
+
+	// Distribute the sq work across two goroutines that both read from in.
+	c1 := sq(in)
+	c2 := sq(in)
+
+	// Consume the merged output from c1 and c2.
+	for n := range merge(c1, c2) {
+		fmt.Println(n) // 4 then 9, or 9 then 4
+	}
+
+}
+
+func gen(nums ...int) <-chan int {
+	out := make(chan int)
+	go func() {
+		for _, n := range nums {
+			out <- n
+		}
+		close(out)
+	}()
+	return out
+}
+
+func sq(in <-chan int) <-chan int {
+	out := make(chan int)
+	go func() {
+		for n := range in {
+			out <- n * n
+		}
+		close(out)
+	}()
+	return out
+}
+
+func merge(chs ...<-chan int) <-chan int {
+	out := make(chan int)
+	wg := &sync.WaitGroup{}
+
+	output := func(ch <-chan int) {
+		for n := range ch {
+			out <- n
+		}
+		wg.Done()
+	}
+
+	wg.Add(len(chs))
+	for _, c := range chs {
+		go output(c)
+	}
+
+	go func() {
+		wg.Wait()
+		close(out)
+	}()
+
+	return out
+}
