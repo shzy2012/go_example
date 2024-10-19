@@ -1,0 +1,61 @@
+package main
+
+import (
+	"errors"
+	"fmt"
+)
+
+type TaskBuilder struct {
+	title       string
+	description string
+	err         error
+}
+
+func NewTaskBuilder() *TaskBuilder {
+	return &TaskBuilder{}
+}
+
+func (b *TaskBuilder) One(task []int) *TaskBuilder {
+
+	for i := 0; i < len(task); i++ {
+
+	}
+
+	return b
+}
+
+func (b *TaskBuilder) SetDescription(description string) *TaskBuilder {
+	if description == "" {
+		b.err = errors.New("description cannot be empty")
+	}
+	b.description = description
+	return b
+}
+
+func (b *TaskBuilder) Build() (*Task, error) {
+	if b.err != nil {
+		return nil, b.err
+	}
+	return &Task{
+		title:       b.title,
+		description: b.description,
+	}, nil
+}
+
+type Task struct {
+	title       string
+	description string
+}
+
+func main() {
+	task, err := NewTaskBuilder().One([]int{1, 2, 3}).
+		SetDescription("Learn how to use Go for backend development.").
+		Build()
+
+	if err != nil {
+		fmt.Printf("Error building task: %s\n", err)
+		return
+	}
+
+	fmt.Printf("Task: %+v\n", task)
+}

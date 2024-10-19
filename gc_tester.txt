@@ -1,0 +1,54 @@
+package main
+
+import (
+	"fmt"
+	"runtime"
+	"runtime/debug"
+	"time"
+)
+
+// 结合 pprof 工具来收集更详细的 GC 性能数据
+// GODEBUG=gctrace=1 go run main.go
+/*
+	初始GC次数: 1
+	GC后的次数: 6
+	总GC耗时: 2.572752ms
+	每次GC耗时平均值: 428.792µs
+*/
+
+func main() {
+	// 允许控制GC的触发频率，通过设置GOGC参数（单位为回收内存与活跃内存的百分比）。
+	// 设置 GOGC 为 100（默认），你可以尝试调高或调低来观察效果
+	// 该值表示：当堆内存使用量达到上一次 GC 后存活对象大小的 100% 时，会触发下一次 GC。例如，如果上次 GC 后存活的对象占用 10 MB 内存，那么当堆内存增至 20 MB 时会再次触发 GC。
+	debug.SetGCPercent(100)
+
+	// 强制启动一次 GC，确保初始状态干净
+	runtime.GC()
+
+	// 收集 GC 统计信息
+	var gcStats debug.GCStats
+	debug.ReadGCStats(&gcStats)
+	fmt.Printf("初始GC次数: %d\n", gcStats.NumGC)
+
+	// 模拟内存分配，并多次触发GC
+	start := time.Now()
+	for i := 0; i < 5; i++ {
+		allocateMemory()
+		runtime.GC() // 强制GC. 多次运行内存分配和 GC，减少单次测试的偶然性
+	}
+
+	elapsed := time.Since(start)
+
+	// 读取新的 GC 统计信息
+	debug.ReadGCStats(&gcStats)
+	fmt.Printf("GC后的次数: %d\n", gcStats.NumGC)
+	fmt.Printf("总GC耗时: %s\n", elapsed)
+	fmt.Printf("每次GC耗时平均值: %v\n", elapsed/time.Duration(gcStats.NumGC))
+}
+
+// 模拟大量内存分配
+func allocateMemory() {
+	for i := 0; i < 1000000; i++ {
+		_ = make([]byte, 1024) // 每次分配 1KB
+	}
+}
