@@ -1,0 +1,25 @@
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	targetTime := time.Now().Add(5 * time.Second) // 5秒后执行
+	duration := time.Until(targetTime)
+
+	fmt.Println("任务将在", targetTime.Format("2006-01-02 15:04:05"), "执行")
+
+	go func() {
+		println("go等待执行任务...")
+		time.AfterFunc(duration, func() {
+			fmt.Println("任务已执行:", time.Now().Format("2006-01-02 15:04:05"))
+		})
+	}()
+
+	println("等待执行任务...")
+	// select {} // 阻塞主线程，防止程序退出
+
+	time.Sleep(time.Minute)
+}
