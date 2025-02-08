@@ -1,6 +1,6 @@
 module gohello
 
-go 1.12
+go 1.23
 
 require (
 	github.com/laiye-ai/wulai-openapi-sdk-golang v0.0.0-20190910102040-b125051565b5 // indirect

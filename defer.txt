@@ -1,0 +1,30 @@
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	i := 0
+	for {
+		i++
+		println(i)
+		defer func() {
+			fmt.Printf("%s\n", "defer 运行")
+		}()
+
+		time.Sleep(time.Second * 1)
+
+		if i < 10 {
+			continue
+		}
+
+		if i > 10 {
+			return
+		}
+
+		
+
+	}
+}
