@@ -1,0 +1,39 @@
+// Golang program to illustrate 
+// reflect.CanSet() Function 
+
+package main 
+
+import ( 
+	"fmt"
+	"reflect"
+) 
+
+type ProductionInfo struct { 
+	StructA []Entry 
+} 
+
+type Entry struct { 
+	Field1 string 
+	Field2 int
+} 
+
+func SetField(source interface{}, fieldName string, fieldValue string) { 
+	v := reflect.ValueOf(source).Elem() 
+	
+	// use of CanSet() method 
+	fmt.Println(v.FieldByName(fieldName).CanSet()) 
+
+	if v.FieldByName(fieldName).CanSet() { 
+		v.FieldByName(fieldName).SetString(fieldValue) 
+	} 
+} 
+
+// Main function 
+func main() { 
+	source := ProductionInfo{} 
+	source.StructA = append(source.StructA, Entry{Field1: "A", Field2: 2}) 
+
+	fmt.Println("Before: ", source.StructA[0]) 
+	SetField(&source.StructA[0], "Field1", "NEW_VALUE") 
+	fmt.Println("After: ", source.StructA[0]) 
+} 
