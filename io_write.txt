@@ -1,0 +1,124 @@
+package main
+
+import (
+	"bytes"
+	"fmt"
+	"io"
+	"log"
+	"os"
+	"strings"
+)
+
+/*
+io.Pipe、io.Copy和io.MultiWriter
+*/
+func main() {
+
+	fmt.Println("-------------write-------------------")
+
+	// 将数据写入到标准输出
+	fmt.Fprintln(os.Stdout, "Hello World")
+
+	// 将数据写入到缓冲区
+	var buf bytes.Buffer
+	fmt.Fprint(&buf, "Hello, World")
+
+	fmt.Printf("buf: %s\n", buf.String())
+	buf.Reset()
+
+	// 创建多个writer(一个数据同时写入到多个Writer)
+	mw := io.MultiWriter(os.Stdout, &buf)
+
+	// 将数据写入到多个writer
+	fmt.Fprintln(mw, "Hello MultiWriter")
+
+	fmt.Printf("buf: %s\n", buf.String())
+
+	fmt.Println("-------------read-------------------")
+
+	r := strings.NewReader("Hello, World")
+
+	// 读取数据
+	io.Copy(os.Stdout, r)
+
+	r1 := strings.NewReader("\nHello, World1\n")
+	r2 := strings.NewReader("Hello, World2\n")
+	r3 := strings.NewReader("Hello, World3\n")
+
+	mr := io.MultiReader(r1, r2, r3)
+	io.Copy(os.Stdout, mr)
+
+	fmt.Println("-------------io.Pipe 数据管道-------------------")
+
+	// 创建一个管道
+	pr, pw := io.Pipe()
+	// 启动一个 goroutine 写入数据
+	go func() {
+		defer pw.Close()
+		for i := 1; i < 10; i++ {
+			_, err := io.Copy(pw, strings.NewReader(fmt.Sprintf("Hello, Pipe! %d\n", i)))
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+	}()
+
+	// for {
+	// 	if _, err := io.Copy(os.Stdout, pr); err != nil {
+	// 		if err == io.EOF {
+	// 			break
+	// 		}
+	// 	}
+	// }
+
+	// 读取数据
+	buf2 := make([]byte, 1024)
+	for {
+		n, err := pr.Read(buf2)
+		if err == io.EOF {
+			break
+		}
+		fmt.Printf("Read %d bytes: %s\n", n, buf2[:n])
+	}
+}
+
+/*
+在 Go 语言中，`io.Copy` 和 `io.ReadAll` 都是用于处理数据流的函数，但它们的用途和实现方式有所不同。以下是对这两个函数的比较：
+
+### `io.Copy`
+
+- **功能**: `io.Copy` 将数据从一个 `io.Reader` 复制到一个 `io.Writer`，直到 `io.Reader` 返回 `EOF` 或发生错误。
+- **用法**: 适用于需要将数据从一个流直接传输到另一个流的场景，比如从网络连接读取数据并写入文件。
+- **性能**: 通常效率较高，因为它直接在两个流之间传输数据，避免了中间缓冲区的使用。
+- **内存使用**: 内存使用量较低，因为它不需要将整个数据加载到内存中。
+- **示例**:
+  ```go
+  n, err := io.Copy(dst, src)
+  if err != nil {
+      log.Fatal(err)
+  }
+  fmt.Printf("Copied %d bytes\n", n)
+  ```
+
+### `io.ReadAll`
+
+- **功能**: `io.ReadAll` 读取 `io.Reader` 中的所有数据并将其返回为一个字节切片。
+- **用法**: 适用于需要将整个数据流加载到内存中进行处理的场景，比如读取 HTTP 响应的整个 body。
+- **性能**: 可能会因为需要将所有数据加载到内存中而导致性能问题，特别是当数据量很大时。
+- **内存使用**: 内存使用量较高，因为它需要将整个数据流存储在内存中。
+- **示例**:
+  ```go
+  data, err := io.ReadAll(src)
+  if err != nil {
+      log.Fatal(err)
+  }
+  fmt.Printf("Read %d bytes\n", len(data))
+  ```
+
+### 选择使用哪一个
+
+- 如果你需要处理的数据量很大，或者你不需要将数据全部加载到内存中，`io.Copy` 是更好的选择。
+- 如果你需要对整个数据进行处理（例如解析 JSON 或 XML），并且数据量在可控范围内，`io.ReadAll` 可能更方便。
+
+总之，选择哪个函数取决于具体的使用场景和对内存使用的要求。
+*/
