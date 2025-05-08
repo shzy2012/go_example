@@ -1,0 +1,67 @@
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+/*
+在Go语言中，信号量（Semaphore）是一种用于控制对共享资源访问的同步机制。它可以限制同时访问某个资源的线程或协程的数量。虽然Go语言标准库中没有直接提供信号量的实现，但我们可以使用通道（channel）来实现信号量的功能。
+
+信号量的基本概念
+信号量是一种计数器，用于控制对资源的访问。它有两个主要操作：
+
+P操作（Wait/Acquire）：请求资源，如果信号量的计数器大于0，则减1并继续；如果计数器为0，则阻塞直到计数器大于0。
+V操作（Signal/Release）：释放资源，将信号量的计数器加1。
+使用通道实现信号量
+在Go中，我们可以使用带缓冲的通道来实现信号量。通道的容量可以表示信号量的计数器，通道的发送和接收操作可以分别对应于P操作和V操作
+*/
+
+// Semaphore is a simple semaphore implementation using a buffered channel.
+type Semaphore struct {
+	ch chan struct{}
+}
+
+// NewSemaphore creates a new semaphore with the given capacity.
+func NewSemaphore(capacity int) *Semaphore {
+	return &Semaphore{
+		ch: make(chan struct{}, capacity),
+	}
+}
+
+// Acquire acquires the semaphore, blocking if necessary.
+func (s *Semaphore) Acquire() {
+	s.ch <- struct{}{}
+}
+
+// Release releases the semaphore.
+func (s *Semaphore) Release() {
+	<-s.ch
+}
+
+/*
+解释
+
+	创建信号量：NewSemaphore函数创建一个新的信号量，使用一个带缓冲的通道来限制并发访问的数量。
+	Acquire方法：通过向通道发送一个空结构体来请求资源。如果通道已满（即信号量计数器为0），则阻塞。
+	Release方法：通过从通道接收一个空结构体来释放资源，增加信号量的计数器。
+
+这种实现方式利用了Go语言中通道的阻塞特性，简单而有效地实现了信号量的功能。通过调整通道的容量，可以控制同时访问资源的最大协程数。
+*/
+func main() {
+	// Create a semaphore with a capacity of 3.
+	sem := NewSemaphore(3)
+
+	for i := 0; i < 10; i++ {
+		go func(id int) {
+			sem.Acquire()
+			fmt.Printf("Goroutine %d acquired the semaphore\n", id)
+			time.Sleep(1 * time.Second) // Simulate some work
+			fmt.Printf("Goroutine %d releasing the semaphore\n", id)
+			sem.Release()
+		}(i)
+	}
+
+	// Wait for a while to let goroutines finish
+	time.Sleep(5 * time.Second)
+}
