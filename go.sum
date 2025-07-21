@@ -1,5 +1,7 @@
 github.com/laiye-ai/wulai-openapi-sdk-golang v0.0.0-20190910102040-b125051565b5 h1:djzqQkiL50NyMJ0GaoSYZtWPILEEwM29GM41cpEM0As=
 github.com/laiye-ai/wulai-openapi-sdk-golang v0.0.0-20190910102040-b125051565b5/go.mod h1:gMm2iGZq5sqUHLi8hD8yJQHB8YbgA1OrkshQH3KWg8o=
+github.com/sony/sonyflake v1.3.0 h1:tiB4Dlp0lnmKp/h6BLXA14P8Qi+LYS9+0QRpcrKHvg4=
+github.com/sony/sonyflake v1.3.0/go.mod h1:LORtCywH/cq10ZbyfhKrHYgAUGH7mOBa76enV9txy/Y=
 github.com/yuin/goldmark v1.1.32 h1:5tjfNdR2ki3yYQ842+eX2sQHeiwpKJ0RnHO4IYOc4V8=
 github.com/yuin/goldmark v1.1.32/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=

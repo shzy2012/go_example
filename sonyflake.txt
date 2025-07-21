@@ -1,0 +1,41 @@
+package main
+
+import (
+	"fmt"
+	"time"
+
+	"github.com/sony/sonyflake"
+)
+
+func main() {
+	// 自定义设置（可选）
+	settings := sonyflake.Settings{
+		StartTime: time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC), // 自定义起始时间
+		MachineID: func() (uint16, error) {
+			return 1, nil // 设置机器 ID（0~1023）
+		},
+	}
+
+	// 创建 Sonyflake 实例
+	sf := sonyflake.NewSonyflake(settings)
+	if sf == nil {
+		panic("Failed to initialize sonyflake")
+	}
+
+	// 生成 ID
+	id, err := sf.NextID()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Generated ID: %d\n", id)
+}
+
+// 27124802640674817
+// 80178563969449985
+// 2871540350218928409
+// 2871496648280768557
+// 2871496586616111345
+// 2871493964932841493
+
+
