@@ -1,0 +1,61 @@
+package main
+
+import "fmt"
+
+// Bitmap结构体定义
+type Bitmap struct {
+	bits []uint64
+}
+
+// NewBitmap创建一个新的Bitmap
+func NewBitmap(size int) *Bitmap {
+	return &Bitmap{
+		bits: make([]uint64, (size+63)/64),
+	}
+}
+
+// Set设置位的值为1
+func (bm *Bitmap) Set(pos int) {
+	index := pos / 64
+	offset := pos % 64
+	bm.bits[index] |= (1 << offset)
+}
+
+// Clear设置位的值为0
+func (bm *Bitmap) Clear(pos int) {
+	index := pos / 64
+	offset := pos % 64
+	bm.bits[index] &^= (1 << offset)
+}
+
+// IsSet检查位是否为1
+func (bm *Bitmap) IsSet(pos int) bool {
+	index := pos / 64
+	offset := pos % 64
+	return (bm.bits[index] & (1 << offset)) != 0
+}
+
+// Size返回Bitmap的大小
+func (bm *Bitmap) Size() int {
+	return len(bm.bits) * 64
+}
+
+func main() {
+	// 创建一个Bitmap
+	bm := NewBitmap(128)
+
+	// 设置一些位
+	bm.Set(1)
+	bm.Set(65)
+	bm.Set(127)
+
+	// 检查位是否设置
+	fmt.Println("Bit 1 is set:", bm.IsSet(1))     // 输出: true
+	fmt.Println("Bit 65 is set:", bm.IsSet(65))   // 输出: true
+	fmt.Println("Bit 127 is set:", bm.IsSet(127)) // 输出: true
+	fmt.Println("Bit 64 is set:", bm.IsSet(64))   // 输出: false
+
+	// 清除一个位
+	bm.Clear(65)
+	fmt.Println("Bit 65 is set after clear:", bm.IsSet(65)) // 输出: false
+}
