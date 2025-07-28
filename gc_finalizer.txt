@@ -1,0 +1,31 @@
+package main
+
+import (
+	"fmt"
+	"runtime"
+	"time"
+)
+
+type Resource struct {
+	name string
+}
+
+func main() {
+	// 创建一个资源对象
+	res := &Resource{name: "MyResource"}
+
+	// 资源释放前执行
+	runtime.SetFinalizer(res, func(r *Resource) {
+		fmt.Printf("Finalizing resource: %s\n", r.name)
+	})
+
+	// 使资源不再被引用
+	res = nil
+
+	// 手动触发垃圾回收
+	runtime.GC()
+
+	// 等待一段时间以确保垃圾回收完成
+	// 在实际应用中，垃圾回收是异步的，可能需要多次触发或等待
+	time.Sleep(2 * time.Second)
+}

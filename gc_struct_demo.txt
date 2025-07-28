@@ -1,0 +1,86 @@
+package main
+
+import (
+	"fmt"
+	"runtime"
+	"sync"
+	"time"
+)
+
+type Client struct {
+	wg      sync.WaitGroup
+	clone   chan struct{}
+	message chan string
+}
+
+func NewClient() *Client {
+	client := &Client{
+		wg:      sync.WaitGroup{},
+		clone:   make(chan struct{}),
+		message: make(chan string),
+	}
+
+	runtime.SetFinalizer(client, func(c *Client) {
+		fmt.Println("finalizer called for Client")
+	})
+
+	return client
+}
+
+func (x *Client) Close() {
+	close(x.clone)
+	close(x.message)
+	fmt.Println("message channel closed")
+}
+
+// 合并 goroutine 处理函数
+func (x *Client) run(name string) {
+	x.wg.Add(1) // 确保在 goroutine 启动前添加到 WaitGroup
+	defer func() {
+		fmt.Println(name + "_closed")
+		x.wg.Done()
+	}()
+	for {
+		select {
+		case _, ok := <-x.clone:
+			if !ok {
+				return
+			}
+		case msg, ok := <-x.message:
+			if !ok {
+				fmt.Println(name + "_message closed")
+				return
+			}
+			fmt.Println(name+"_message:", msg)
+		}
+	}
+}
+
+func main() {
+	client := NewClient()
+
+	// 启动 goroutine 前统一 Add
+	go client.run("f1")
+	go client.run("f2")
+	go client.run("f3")
+
+	go func() {
+		time.Sleep(time.Second * 10)
+		client.Close()
+		fmt.Println("ch closed")
+	}()
+
+	for i := 0; i < 6; i++ {
+		client.message <- fmt.Sprintf("message %d", i+1)
+		time.Sleep(time.Second)
+	}
+
+	client.wg.Wait()
+
+	time.Sleep(time.Second * 10)
+	runtime.GC() // 强制GC,确保资源被释放
+	fmt.Println("GC completed")
+
+	time.Sleep(time.Second * 1) // 等待所有 goroutine 完成
+	fmt.Println("main finished")
+}
